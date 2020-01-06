@@ -1,13 +1,14 @@
 // ==UserScript==
 // @name         Timing Click
 // @namespace    http://tampermonkey.net/
-// @version      0.3.1
+// @version      0.1.0
 // @description  倒计时自动点击，电商抢东西专用
-// @author       Cherokeeli
-// @match        *://*/*
-// match        *://*.taobao.com/*
-// match        *://*.jd.com/*
-// match        *://*.tmall.com/*
+// @author       lingcon
+// match        *://*/*
+// match        *://*.byr.cn/*
+// @match        *://*.taobao.com/*
+// @match        *://*.jd.com/*
+// @match        *://*.tmall.com/*
 // @require      https://code.jquery.com/jquery-latest.js
 // @run-at       document-idle
 // @grant        GM_addStyle
@@ -43,8 +44,8 @@
 
    // var countWoker = "https://gitee.com/erokee/monkey-lib/raw/master/timing-click/count-worker.js";
     var countWoker = "https://gitee.com/lingcon/QuickBuy/raw/master/count-worker.js";
-    var avatar = "https://gitee.com/erokee/monkey-lib/raw/master/timing-click/image/1.pic.png";
-
+    //var avatar = "https://gitee.com/erokee/monkey-lib/raw/master/timing-click/image/1.pic.png";
+    var avatar = "https://gitee.com/lingcon/QuickBuy/raw/master/tc.jpg";
     var mainCss = `#ql-panel #counterClickTime {
 position:relative;
 z-index:999;
@@ -102,8 +103,8 @@ background-color: #fff;
 }
 
 #ql-panel #triggerButton {
-height:50px;
-width:50px;
+height:40px;
+width:56px;
 position:relative;
 z-index:9999;
 background-position:center;
