@@ -1,11 +1,11 @@
 // ==UserScript==
-// @name         Timing Click
+// @name         Timing Click for Airpods2
 // @namespace    http://tampermonkey.net/
 // @version      0.1.0
 // @description  倒计时自动点击，电商抢东西专用
 // @author       lingcon
 // match        *://*/*
-// match        *://*.byr.cn/*
+// @match        *://*.byr.cn/*
 // @match        *://*.taobao.com/*
 // @match        *://*.jd.com/*
 // @match        *://*.tmall.com/*
@@ -27,12 +27,14 @@
 
     if (sessionStorage.buyNow) {
         if (sessionStorage.lag) {
+            console.log('After lag', sessionStorage.lag);
             setTimeout(stepClick, sessionStorage.lag, 3, 100, function () {
                 _$(sessionStorage.selector).trigger('click');
                 fireEvent(document.querySelector(sessionStorage.selector), 'click');
             })
         }
         else {
+            console.log('immediately!');
             stepClick(3, 100, function () {
                 _$(sessionStorage.selector).trigger('click');
                 fireEvent(document.querySelector(sessionStorage.selector), 'click');
@@ -286,7 +288,13 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
 
     function stepClick(times, stepInterval, clickFn) {
         if (!times) return;
-        if (clickFn) clickFn();
+        try {
+            if (clickFn) clickFn();
+            console.log('Clicked!!!');
+        }
+        catch(err) {
+            console.log('Click error:', err.description);
+        }
         setTimeout(function () {
             stepClick(--times, stepInterval, clickFn);
         }, stepInterval);
@@ -334,6 +342,12 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
 
     /*开始抢*/
     listenButton.click(function(e) {
+
+//         if (listenButton[0].innerHTML.substring(0, '(σﾟ∀ﾟ)σ'.length) == '(σﾟ∀ﾟ)σ') {
+//             listenButton[0].innerHTML = '_(:з」∠)_点我重新开抢';
+//             return;
+//         }
+
         let time = timeInput.val();
         let mstime;
         if (isNaN(parseInt(mstimeInput.val()))) {
@@ -363,9 +377,6 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
             if (lag > 0) sessionStorage.lag = lag;
         }
         if (sessionStorage.lag && lag == 0) sessionStorage.removeItem('lag');
-        let targetTime = Date.parse(new Date(time));
-        let currentTime = Date.now();
-        let timeout = targetTime-mstime-currentTime;
 //        let selector = selectorInput.val();
         let selector;
         if(selectorInput.val() == "") {
@@ -381,7 +392,9 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
             selector = selectorInput.val();
             sessionStorage.selector = selector;
         }
-        console.log(targetTime, mstime, currentTime, timeout, selector);
+        let targetTime = Date.parse(new Date(time));
+//        let currentTime = Date.now();
+        console.log(targetTime, mstime, lag, selector);
         createWorkerFromExternalURL(countWoker, function (worker) {
             if (!worker) throw Error('Create webworker failed');
             let btn = listenButton[0];
@@ -390,10 +403,10 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
                     sessionStorage.buyNow = true;
                     btn.disabled = false;
                     btn.innerHTML = `(ง•̀_•́)ง正在刷新页面……`;
-/*                    stepClick(3, 100, function () {
-                        _$(selector).trigger('click');
-                        fireEvent(document.querySelector(selector), 'click');
-                    });*/
+//                     stepClick(3, 100, function () {
+//                         _$(selector).trigger('click');
+//                         fireEvent(document.querySelector(selector), 'click');
+//                     });
                     //btn.innerHTML = `抢购结束`;
                     worker.terminate();
                     location.reload(true);
@@ -403,7 +416,9 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
                     btn.innerHTML = `(σﾟ∀ﾟ)σ距离开抢还有${Math.ceil(event.data / 1000)}秒`;
                 }
             };
-            worker.postMessage(timeout);
+//            let timeout = targetTime-mstime-currentTime;
+//            worker.postMessage(timeout);
+            worker.postMessage(targetTime);
         });
     });
 
