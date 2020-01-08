@@ -24,23 +24,39 @@
 
     var $ = $ || window.$;
     var _$ = $.noConflict(true);
+    var infoSelector = "#item_a12178fd442b19b720ba22f59a1a2892 > div > div > div > div > div:nth-child(2) > div:nth-child(2) > div > span";
 
-    if (sessionStorage.buyNow) {
+    if (sessionStorage.notYeeet) {
+        console.log('Not yeeet');
+        sessionStorage.removeItem("notYeeet");
+//         sessionStorage.buyNooow = true;
+//         location.reload(true);
+        return;
+    }
+
+    if (sessionStorage.buyNooow) {
+        console.log('Buy nooow');
         if (sessionStorage.lag) {
             console.log('After lag', sessionStorage.lag);
             setTimeout(stepClick, sessionStorage.lag, 3, 100, function () {
                 _$(sessionStorage.selector).trigger('click');
                 fireEvent(document.querySelector(sessionStorage.selector), 'click');
             })
+//             console.log(document.querySelector(infoSelector));
+//             setTimeout(console.log, sessionStorage.lag * 2, document.querySelector(sessionStorage.selector));
         }
         else {
-            console.log('immediately!');
+            console.log('Immediately!');
             stepClick(3, 100, function () {
                 _$(sessionStorage.selector).trigger('click');
                 fireEvent(document.querySelector(sessionStorage.selector), 'click');
             })
         }
-        sessionStorage.removeItem("buyNow");
+
+//         else {
+//             sessionStorage.removeItem("buyNooow");
+//         }
+        sessionStorage.removeItem("buyNooow");
         return;
     }
 
@@ -224,8 +240,8 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
     let ptime = new Date(Date.parse(predictDate(new Date())));
     //console.log(ptime);
 
-    //hidePanel.append(timeInput.val(dateFormatter.call(new Date(), 'yyyy-MM-ddThh:mm:ss')));
-    hidePanel.append(timeInput.val(dateFormatter.call(ptime, 'yyyy-MM-ddThh:mm:ss')));
+    hidePanel.append(timeInput.val(dateFormatter.call(new Date(), 'yyyy-MM-ddThh:mm:ss')));
+//     hidePanel.append(timeInput.val(dateFormatter.call(ptime, 'yyyy-MM-ddThh:mm:ss')));
     hidePanel.append(mstimeInput);
     hidePanel.append(lagInput);
     hidePanel.append(selectorInput);
@@ -262,11 +278,14 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
         return fmt;
     }
 
+    // 触发鼠标点击
     function fireEvent(dom, eventName) {
+        //console.log('fire', dom);
         let event = new MouseEvent(eventName);
         return dom.dispatchEvent(event);
     }
 
+    // 创建计时器
     function createWorkerFromExternalURL(url, callback) {
         GM_xmlhttpRequest({
             method: 'GET',
@@ -286,8 +305,28 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
         });
     }
 
+    // 多次启动点击
     function stepClick(times, stepInterval, clickFn) {
-        if (!times) return;
+        if (!times) {
+            try {
+//                 console.log('stepClick', document.querySelector(infoSelector).innerText);
+                if (document.querySelector(infoSelector).innerText == '百亿补贴活动还未开始') {
+                    console.log('Not yet');
+                    if (!sessionStorage.notYeeet) {
+                        sessionStorage.notYeeet = true;
+                        location.reload(true);
+                    }
+                }
+                else if (document.querySelector(infoSelector).innerText == '抱歉，该商品在您当前收货地址内已无库存！') {
+                    console.log('Sold out');
+                    sessionStorage.deleteItem('notYeeet');
+                }
+            }
+            catch(err) {
+                console.log('Info error:', err.description);
+            }
+            return;
+        }
         try {
             if (clickFn) clickFn();
             console.log('Clicked!!!');
@@ -400,7 +439,7 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
             let btn = listenButton[0];
             worker.onmessage = function (event) {
                 if (event.data === -1) {
-                    sessionStorage.buyNow = true;
+                    sessionStorage.buyNooow = true;
                     btn.disabled = false;
                     btn.innerHTML = `(ง•̀_•́)ง正在刷新页面……`;
 //                     stepClick(3, 100, function () {
