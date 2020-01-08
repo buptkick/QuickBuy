@@ -240,8 +240,8 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
     let ptime = new Date(Date.parse(predictDate(new Date())));
     //console.log(ptime);
 
-    hidePanel.append(timeInput.val(dateFormatter.call(new Date(), 'yyyy-MM-ddThh:mm:ss')));
-//     hidePanel.append(timeInput.val(dateFormatter.call(ptime, 'yyyy-MM-ddThh:mm:ss')));
+//     hidePanel.append(timeInput.val(dateFormatter.call(new Date(), 'yyyy-MM-ddThh:mm:ss')));
+    hidePanel.append(timeInput.val(dateFormatter.call(ptime, 'yyyy-MM-ddThh:mm:ss')));
     hidePanel.append(mstimeInput);
     hidePanel.append(lagInput);
     hidePanel.append(selectorInput);
@@ -310,16 +310,18 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
         if (!times) {
             try {
 //                 console.log('stepClick', document.querySelector(infoSelector).innerText);
-                if (document.querySelector(infoSelector).innerText == '百亿补贴活动还未开始') {
+                let infoText = document.querySelector(infoSelector).innerText;
+                if (infoText == '百亿补贴活动还未开始') {
                     console.log('Not yet');
                     if (!sessionStorage.notYeeet) {
                         sessionStorage.notYeeet = true;
-                        location.reload(true);
+                        sessionStorage.refresh = true;
+                        location.reload();
                     }
                 }
-                else if (document.querySelector(infoSelector).innerText == '抱歉，该商品在您当前收货地址内已无库存！') {
+                else if (infoText == '抱歉，该商品在您当前收货地址内已无库存！') {
                     console.log('Sold out');
-                    sessionStorage.deleteItem('notYeeet');
+                    if (sessionStorage.notYeeet) sessionStorage.deleteItem('notYeeet');
                 }
             }
             catch(err) {
@@ -334,9 +336,10 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
         catch(err) {
             console.log('Click error:', err.description);
         }
-        setTimeout(function () {
-            stepClick(--times, stepInterval, clickFn);
-        }, stepInterval);
+//         setTimeout(function () {
+//             stepClick(--times, stepInterval, clickFn);
+//         }, stepInterval);
+        setTimeout(stepClick, stepInterval, --times, stepInterval, clickFn);
     }
 
     // 预测刷新时间
@@ -381,6 +384,7 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
 
     /*开始抢*/
     listenButton.click(function(e) {
+        if (sessionStorage.refresh) sessionStorage.removeItem('refresh');
 
 //         if (listenButton[0].innerHTML.substring(0, '(σﾟ∀ﾟ)σ'.length) == '(σﾟ∀ﾟ)σ') {
 //             listenButton[0].innerHTML = '_(:з」∠)_点我重新开抢';
@@ -423,8 +427,10 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
                 selector = sessionStorage.selector;
             }
             else {
-                listenButton[0].innerHTML = `请输入抢按钮选择器！`;
-                return;
+//                 selector = 'body > div.widgets-cover.show > div.cover-content > div > div.footer.trade > a > p';
+                selector = '#submitBlock_1 > div > div > div > div:nth-child(3) > div:nth-child(2) > span';
+//                 listenButton[0].innerHTML = `请输入抢按钮选择器！`;
+//                 return;
             }
         }
         else {
@@ -448,7 +454,7 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
 //                     });
                     //btn.innerHTML = `抢购结束`;
                     worker.terminate();
-                    location.reload(true);
+                    location.reload();
                     return;
                 } else {
                     btn.disabled = true;
