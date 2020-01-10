@@ -38,7 +38,7 @@
         console.log('Buy nooow');
         if (sessionStorage.lag) {
             console.log('After lag', sessionStorage.lag);
-            setTimeout(stepClick, sessionStorage.lag, 3, 100, function () {
+            setTimeout(stepClick, sessionStorage.lag, 3, 50, function () {
                 _$(sessionStorage.selector).trigger('click');
                 fireEvent(document.querySelector(sessionStorage.selector), 'click');
             })
@@ -331,9 +331,17 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
         }
         try {
             if (clickFn) clickFn();
+            if (!sessionStorage.clickTimes)
+                sessionStorage.clickTimes = '1';
+            else
+                sessionStorage.clickTimes += '1';
             console.log('Clicked!!!');
         }
         catch(err) {
+            if (!sessionStorage.clickTimes)
+                sessionStorage.clickTimes = '0';
+            else
+                sessionStorage.clickTimes += '0';
             console.log('Click error:', err.description);
         }
 //         setTimeout(function () {
@@ -385,6 +393,7 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
     /*开始抢*/
     listenButton.click(function(e) {
         if (sessionStorage.refresh) sessionStorage.removeItem('refresh');
+        if (sessionStorage.clickTimes) sessionStorage.removeItem('clickTimes');
 
 //         if (listenButton[0].innerHTML.substring(0, '(σﾟ∀ﾟ)σ'.length) == '(σﾟ∀ﾟ)σ') {
 //             listenButton[0].innerHTML = '_(:з」∠)_点我重新开抢';
@@ -438,7 +447,9 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
             sessionStorage.selector = selector;
         }
         let targetTime = Date.parse(new Date(time));
-//        let currentTime = Date.now();
+//         let currentTime = Date.now();
+//         let timeout = targetTime - mstime - currentTime();
+        let timing = targetTime - mstime;
         console.log(targetTime, mstime, lag, selector);
         createWorkerFromExternalURL(countWoker, function (worker) {
             if (!worker) throw Error('Create webworker failed');
@@ -461,9 +472,8 @@ box-shadow: 0 0 5px rgb(213,210,210) !important;
                     btn.innerHTML = `(σﾟ∀ﾟ)σ距离开抢还有${Math.ceil(event.data / 1000)}秒`;
                 }
             };
-//            let timeout = targetTime-mstime-currentTime;
-//            worker.postMessage(timeout);
-            worker.postMessage(targetTime);
+//             worker.postMessage(timeout);
+            worker.postMessage(timing);
         });
     });
 
